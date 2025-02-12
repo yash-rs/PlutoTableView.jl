@@ -5,7 +5,7 @@ using Tables
 using DataFrames
 
 ##Custom packages required for the pluto notebook
-using CSV
+using CSV,JSON
 
 export readonly_table, editable_table, create_dataframe
 
@@ -177,6 +177,10 @@ $((editable && delete) ? delete_button : "")
 
 function numberParser(params) {
 	return Number(params.newValue);
+};
+
+function imageRenderer(params){
+	return `<img src= params.value style="width: 50px; height: 50px; object-fit: cover;" />`;
 };
 
 var div = currentScript.parentElement;
