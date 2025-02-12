@@ -4,6 +4,9 @@ using HypertextLiteral: @htl, JavaScript
 using Tables
 using DataFrames
 
+##Custom packages required for the pluto notebook
+using CSV
+
 export readonly_table, editable_table, create_dataframe
 
 const MODIFIED_COL_INDICATOR = "modified_column_"
