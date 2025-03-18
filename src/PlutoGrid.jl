@@ -5,7 +5,7 @@ using Tables
 using DataFrames
 
 ##Custom packages required for the pluto notebook
-using CSV,JSON
+using CSV, JSON, URIs
 
 export readonly_table, editable_table, create_dataframe
 
@@ -179,9 +179,6 @@ function numberParser(params) {
 	return Number(params.newValue);
 };
 
-function imageRenderer(params){
-	return `<img src= params.value style="width: 50px; height: 50px; object-fit: cover;" />`;
-};
 
 var div = currentScript.parentElement;
 // set default output value
@@ -264,6 +261,11 @@ function _make_col_defs(df; filterable=true, editable_cols=String[])
 			col_dict["type"] = "numericColumn"
 			filterable && (col_dict["filter"] = "agNumberColumnFilter")
 			col_is_editable && (col_dict["valueParser"] = JavaScript("numberParser"))
+
+		elseif eltype(df[!, c]) <: URI
+			col_dict["cellRenderer"] = JavaScript(raw"""params => {
+				return `<img src="${params.value}" style="width: 50px; height: 50px; object-fit: cover;" />`;
+			}""")
 		end
 		# ToDo: add type / filter for dates
 
