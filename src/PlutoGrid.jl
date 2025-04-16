@@ -29,10 +29,10 @@ Shows a non-editable table in Pluto.
 `height`: vertical size of the table in Pluto in pixel (default: 600)
 
 """
-function readonly_table(df:: DataFrame; filterable:: Bool=true, kwargs...)
+function readonly_table(df:: DataFrame; filterable:: Bool=true, selectable_rows::Bool = false, kwargs...)
 	column_defs = _make_col_defs(df; filterable)
 	data = _prepare_data(df)
-    return _create_table(column_defs, data; filterable, kwargs...)
+    return _create_table(column_defs, data; filterable, selectable_rows, kwargs...)
 end
 
 readonly_table(df; kwargs...) = readonly_table(DataFrame(df); kwargs...)
@@ -57,10 +57,10 @@ Shows an editable table in Pluto. In case of user edits in the table,
 `height`: vertical size of the table in Pluto in pixel (default: 600)
 
 """
-function editable_table(df:: DataFrame, editable_cols:: AbstractVector{<: AbstractString}=collect(names(df)); filterable:: Bool=true, return_only_modified:: Bool=false, kwargs...)
+function editable_table(df:: DataFrame, editable_cols:: AbstractVector{<: AbstractString}=collect(names(df)); filterable:: Bool=true, selectable_rows::Bool = false, return_only_modified:: Bool=false, kwargs...)
 	column_defs = _make_col_defs(df; filterable, editable_cols)
 	data = _prepare_data(df)
-	return _create_table(column_defs, data; editable=true, filterable, kwargs...)
+	return _create_table(column_defs, data; editable=true, filterable, selectable_rows, kwargs...)
 end
 
 editable_table(df, editable_cols; kwargs...) = editable_table(DataFrame(df), editable_cols; kwargs...)
@@ -69,7 +69,7 @@ editable_table(df; kwargs...) = editable_table(DataFrame(df); kwargs...)
 
 function _create_table(column_defs:: AbstractVector{<: AbstractDict}, data:: AbstractVector; 
 	sortable=true, filterable=true, resizable=true, pagination=false, height:: Integer=600,
-	editable=false, insert=true, delete=true, auto_confirm=false)
+	editable=false, insert=true, delete=true, auto_confirm=false, selectable_rows = false)
 
 	edit_button = @htl("""
 		<button  
@@ -133,6 +133,22 @@ function _create_table(column_defs:: AbstractVector{<: AbstractDict}, data:: Abs
 		})
 	""")
 
+	select_button = @htl("""
+		<button
+		id="select_rows"
+		type="button">
+			Confirm Selection
+		</button>
+	""")
+
+	select_button_callback = JavaScript("""
+    div.querySelector("button#select_rows").addEventListener("click", (e) => {
+        const selectedRows = gridOptions.api.getSelectedRows();
+        div.value = selectedRows;
+        div.dispatchEvent(new CustomEvent("input"));
+    })
+    """)
+
 	checkbox_renderer = JavaScript("""
 	// source: https://stackoverflow.com/a/62173238/14693778
 	function CheckboxRenderer() {}
@@ -168,6 +184,7 @@ function _create_table(column_defs:: AbstractVector{<: AbstractDict}, data:: Abs
 $(editable ? edit_button : "")
 $((editable && insert) ? insert_button : "")
 $((editable && delete) ? delete_button : "")
+$(selectable_rows ? select_button : "")
 
 <script src="https://unpkg.com/ag-grid-community@$(AG_GRID_VERSION)/dist/ag-grid-community.min.js"></script>
 <script>
@@ -188,11 +205,13 @@ $checkbox_renderer
 $(editable ? edit_button_callbacks : JavaScript(""))
 $((editable && insert) ? insert_new_row_callback : JavaScript(""))
 $((editable && delete) ? delete_row_callback : JavaScript(""))
+$(selectable_rows ? select_button_callback : JavaScript(""))
 
 // let the grid know which columns and what data to use
 const gridOptions = {
   columnDefs: columnDefs,
   rowData: rowData,
+  rowSelection: $(selectable_rows ? "multiple" : "none"),
   components: { checkboxRenderer: CheckboxRenderer },
   defaultColDef: {
     filter: $(sortable),
