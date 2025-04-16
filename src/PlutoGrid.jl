@@ -212,6 +212,7 @@ const gridOptions = {
   columnDefs: columnDefs,
   rowData: rowData,
   rowSelection: $(selectable_rows ? "multiple" : "none"),
+  rowMultiSelectWithClick: true,
   components: { checkboxRenderer: CheckboxRenderer },
   defaultColDef: {
     filter: $(sortable),
