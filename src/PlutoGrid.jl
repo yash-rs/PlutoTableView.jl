@@ -230,6 +230,7 @@ const gridOptions = {
     },
   },
   pagination: $(pagination),
+  paginationPageSize: 20,
   undoRedoCellEditing: true,
   onCellValueChanged: (params) => {
 		if (params.oldValue === params.newValue) {
