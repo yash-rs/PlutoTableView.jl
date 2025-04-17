@@ -29,10 +29,10 @@ Shows a non-editable table in Pluto.
 `height`: vertical size of the table in Pluto in pixel (default: 600)
 
 """
-function readonly_table(df:: DataFrame; filterable:: Bool=true, selectable_rows::Bool = false, kwargs...)
+function readonly_table(df:: DataFrame; filterable:: Bool=true, selectable_rows::Bool = false, pagination::Bool = false, kwargs...)
 	column_defs = _make_col_defs(df; filterable)
 	data = _prepare_data(df)
-    return _create_table(column_defs, data; filterable, selectable_rows, kwargs...)
+    return _create_table(column_defs, data; filterable, selectable_rows, pagination, kwargs...)
 end
 
 readonly_table(df; kwargs...) = readonly_table(DataFrame(df); kwargs...)
