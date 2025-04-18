@@ -133,21 +133,21 @@ function _create_table(column_defs:: AbstractVector{<: AbstractDict}, data:: Abs
 		})
 	""")
 
-	select_button = @htl("""
-		<button
-		id="select_rows"
-		type="button">
-			Confirm Selection
-		</button>
-	""")
+	# select_button = @htl("""
+	# 	<button
+	# 	id="select_rows"
+	# 	type="button">
+	# 		Confirm Selection
+	# 	</button>
+	# """)
 
-	select_button_callback = JavaScript("""
-    div.querySelector("button#select_rows").addEventListener("click", (e) => {
-        const selectedRows = gridOptions.api.getSelectedRows();
-        div.value = selectedRows;
-        div.dispatchEvent(new CustomEvent("input"));
-    })
-    """)
+	# select_button_callback = JavaScript("""
+    # div.querySelector("button#select_rows").addEventListener("click", (e) => {
+    #     const selectedRows = gridOptions.api.getSelectedRows();
+    #     div.value = selectedRows;
+    #     div.dispatchEvent(new CustomEvent("input"));
+    # })
+    # """)
 
 	checkbox_renderer = JavaScript("""
 	// source: https://stackoverflow.com/a/62173238/14693778
@@ -184,7 +184,7 @@ function _create_table(column_defs:: AbstractVector{<: AbstractDict}, data:: Abs
 $(editable ? edit_button : "")
 $((editable && insert) ? insert_button : "")
 $((editable && delete) ? delete_button : "")
-$(selectable_rows ? select_button : "")
+
 
 <script src="https://unpkg.com/ag-grid-community@$(AG_GRID_VERSION)/dist/ag-grid-community.min.js"></script>
 <script>
@@ -205,7 +205,6 @@ $checkbox_renderer
 $(editable ? edit_button_callbacks : JavaScript(""))
 $((editable && insert) ? insert_new_row_callback : JavaScript(""))
 $((editable && delete) ? delete_row_callback : JavaScript(""))
-$(selectable_rows ? select_button_callback : JavaScript(""))
 
 // let the grid know which columns and what data to use
 const gridOptions = {
@@ -250,6 +249,11 @@ const gridOptions = {
 			div.querySelector("button#update_grid").click();
 		}
 	},
+	onSelectionChanged: (params) => {
+            const selectedRows = params.api.getSelectedRows();
+            div.value = selectedRows;
+            div.dispatchEvent(new CustomEvent("input"));
+        },
 };
 new agGrid.Grid(div, gridOptions);
 
