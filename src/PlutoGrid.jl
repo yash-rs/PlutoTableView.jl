@@ -268,6 +268,13 @@ function _make_col_defs(df; filterable=true, editable_cols=String[])
 	setdiff(editable_cols, names(df)) == [] || error("not all columns defined as editable are in input data")
     
 	column_defs = Dict[]
+	#checkbox rendering in table
+	push!(column_defs, Dict(
+    	"headerCheckboxSelection" => true,   
+        "checkboxSelection" => true,        
+        "width" => 40,
+        "pinned" => "left"
+    ))
 	for c in names(df)
 		col_dict = Dict{String, Any}("field" => c)
 
